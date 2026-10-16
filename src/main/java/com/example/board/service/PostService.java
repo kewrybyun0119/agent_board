@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -51,7 +52,11 @@ public class PostService {
         return repository.findIdsByWord(word);
     }
 
-    /** 지정한 글들의 title/content에서 before를 after로 변경. 없는 id는 건너뛰고, 변경된 글 수를 반환 */
+    /**
+     * 지정한 글들의 title/content에서 before를 after로 변경. 없는 id는 건너뛰고, 변경된 글 수를 반환.
+     * 하나의 트랜잭션으로 처리하므로 중간에 실패하면 전체가 롤백된다.
+     */
+    @Transactional
     public int replaceWord(List<Long> ids, String before, String after) {
         int changed = 0;
         for (Long id : ids) {
